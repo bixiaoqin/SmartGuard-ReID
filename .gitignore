@@ -1,0 +1,24 @@
+# ---- 大文件权重（GitHub 单文件限 100MB，不入库）----
+weights/
+*.pth
+*.pt
+
+# ---- 第三方源码（FastReID，见 README 获取方式）----
+fast-reid/
+
+# ---- 数据与生成产物 ----
+data/
+outputs/
+demo_assets/
+
+# ---- Python ----
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ---- IDE / 系统 ----
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
