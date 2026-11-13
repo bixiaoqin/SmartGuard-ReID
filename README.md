@@ -121,9 +121,24 @@ class ReIDEngine:
 ## 待办（中期检查清单）
 
 - [x] 路径集中配置（config.py）
-- [x] 资源一键下载脚本
-- [ ] demo.py 一键演示脚本
-- [ ] 三场景测试集（Market-1501 / Occluded-Duke / PRCC 各一组）
+- [x] 引擎统一：search / rank_list / demo 共用 extractor.py 一个引擎入口
+- [x] 资源一键下载脚本（scripts/download_assets.py）
+- [x] demo.py 一键演示（Windows 双击 demo.bat 即可运行）
+- [x] 三场景生成脚本（scripts/make_scenario.py）
+- [ ] 遮挡/换衣场景测试集（数据集下载后各跑一次 make_scenario.py，常规场景已生成）
 - [ ] Flask 界面（上传 + Top-K 展示）
 - [ ] 视频流演示 + ByteTrack 行人编号
 - [ ] 接入算法组新引擎，新旧引擎对比图
+
+## 三场景测试集生成
+
+```bash
+# 常规（示例用 CAMPUS 数据，正式版建议换 Market-1501）
+python scripts/make_scenario.py --name 常规 --source data/gallery --num 10
+
+# 数据集下载解压到 data/datasets/ 后：
+python scripts/make_scenario.py --name 遮挡 --source data/datasets/Occluded-Duke/query --num 10
+python scripts/make_scenario.py --name 换衣 --source data/datasets/PRCC/test --num 10
+```
+
+每个场景自动生成：`data/scenarios/<场景名>/`（query.jpg + gallery/）和 `outputs/scenario_<场景名>_rank_list.png`。
