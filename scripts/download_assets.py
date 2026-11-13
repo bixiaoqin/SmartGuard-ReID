@@ -20,9 +20,10 @@ FASTREID_DIR = ROOT / "fast-reid"
 # ---------- 下载地址 ----------
 # YOLOv8n 检测权重（ultralytics 官方，无需自己上传）
 YOLO_URL = "https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8n.pt"
-# FastReID R50 预训练权重：由项目管理员上传到 GitHub Releases
-# （Releases -> New release -> 标签填 v0.1 -> 附件上传 market_bot_R50.pth）
-REID_WEIGHT_URL = "https://github.com/bixiaoqin/SmartGuard-ReID/releases/download/v0.1/market_bot_R50.pth"
+# FastReID R50 预训练权重：直接用官方 MODEL_ZOO 发布（BoT(R50)，Market1501，Rank-1 94.4%）
+REID_WEIGHT_URL = "https://github.com/JDAI-CV/fast-reid/releases/download/v0.1.1/market_bot_R50.pth"
+# 备用：若官方链接失效或太慢，可换成自己仓库的 Releases 地址（上传同名文件后替换）：
+# REID_WEIGHT_URL = "https://github.com/bixiaoqin/SmartGuard-ReID/releases/download/v0.1/market_bot_R50.pth"
 # FastReID 源码
 FASTREID_REPO = "https://github.com/JDAI-CV/fast-reid.git"
 

@@ -37,7 +37,7 @@ python scripts/download_assets.py
 | 资源 | 来源 | 落位 |
 |---|---|---|
 | `yolov8n.pt`（检测权重） | ultralytics 官方发布 | `weights/` |
-| `market_bot_R50.pth`（ReID 旧引擎权重，约 294MB） | 本仓库 Releases 页 | `weights/` |
+| `market_bot_R50.pth`（ReID 旧引擎权重，约 294MB） | FastReID 官方 MODEL_ZOO | `weights/` |
 | `fast-reid/`（FastReID 源码） | github.com/JDAI-CV/fast-reid | 项目根目录 |
 
 > 若某项下载失败，也可手动获取后放到对应位置（见上表）。
