@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>SmartGuard-ReID 安防追踪原型系统</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<h1>SmartGuard-ReID 安防追踪原型系统</h1>
+<p class="sub">视频流接入 · 目标框选 · 跨镜头检索 —— 行人重识别（ReID）演示</p>
+
+<!-- ============ 入口 A：监控视频 跨镜头检索 ============ -->
+<section>
+  <h2>入口 A：监控视频 · 跨镜头检索</h2>
+  <div class="row">
+    <label>监控视频（机位）：
+      <select id="videoSel">
+        {% for v in videos %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+        {% if not videos %}<option value="">（未找到视频，请检查 config.py 的 CAMPUS_VIDEO_DIR）</option>{% endif %}
+      </select>
+    </label>
+    <label>起始秒数：<input type="number" id="seek" value="30" min="0" step="10" class="num"></label>
+    <button id="grabBtn" onclick="grabFrame()">抓取画面并检测</button>
+  </div>
+  <p class="hint">首次抓取需要在视频中扫描行人（CPU 约 10~60 秒），请耐心等待提示。</p>
+
+  <div id="frameArea" class="hidden">
+    <p>在画面上<strong>点击目标行人</strong>（红框），系统将其作为 query 去其他机位的图库中检索：</p>
+    <img id="frameImg" onclick="onFrameClick(event)" title="点击目标行人">
+    <div id="boxBtns" class="boxbtns"></div>
+  </div>
+</section>
+
+<!-- ============ 入口 B：上传图片检索 ============ -->
+<section>
+  <h2>入口 B：上传图片检索</h2>
+  <form id="uploadForm" onsubmit="return uploadQuery(event)">
+    <input type="file" id="imgFile" accept="image/*" required>
+    <button type="submit">上传并检索</button>
+  </form>
+  <p class="hint">上传一张包含行人的图片，自动检测第一个行人作为 query。</p>
+</section>
+
+<!-- ============ 检索结果 ============ -->
+<section id="resultArea" class="hidden">
+  <h2>跨镜头检索结果</h2>
+  <img id="rankImg" alt="rank list">
+  <table id="resultTable">
+    <thead><tr><th>排名</th><th>相似度</th><th>图库文件</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</section>
+
+<div id="status" class="hidden"></div>
+<script src="/static/main.js"></script>
+</body>
+</html>

@@ -21,6 +21,7 @@
 import argparse
 import shutil
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,6 +31,29 @@ from config import SCENARIO_DIR  # noqa: E402
 from demo import DemoPipeline, run_demo  # noqa: E402
 
 IMG_EXTS = {".jpg", ".jpeg", ".png", ".bmp"}
+
+
+def pick_query_and_gallery(images, num):
+    """
+    选图策略：优先挑"同一行人出现次数最多"的身份 —— query 用它的一张图，
+    图库放它的其他图（跨图命中）+ 其他行人（干扰项）。
+    适用于 Market-1501 / Duke 系列的 命名；无法分组时退回顺序取图。
+    """
+    groups = defaultdict(list)
+    for p in images:
+        pid = p.name.split("_")[0]
+        if pid.isdigit() and pid not in ("-1", "0000"):  # 过滤背景误检/干扰图
+            groups[pid].append(p)
+    if not groups:
+        return images[0], images[1: num + 1]
+
+    pid = max(groups, key=lambda k: len(groups[k]))
+    same = groups[pid][1: num // 2 + 1]           # 同一人的其他图（跨镜头/跨时刻）
+    others = []
+    for k in groups:
+        if k != pid:
+            others.extend(groups[k])
+    return groups[pid][0], (same + others)[:num]
 
 
 def main():
@@ -58,8 +82,7 @@ def main():
         query_src = Path(args.query)
         pool = [p for p in images if p.resolve() != query_src.resolve()]
     else:
-        query_src = images[0]
-        pool = images[1:]
+        query_src, pool = pick_query_and_gallery(images, args.num)
     picks = pool[: args.num]
     if query_src not in [p for p in images]:
         raise SystemExit(f"指定的查询图不在源文件夹中: {query_src}")

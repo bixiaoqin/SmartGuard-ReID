@@ -6,8 +6,16 @@ weights/
 # ---- 第三方源码（FastReID，见 README 获取方式）----
 fast-reid/
 
-# ---- 数据与生成产物 ----
-data/
+# ---- 完整数据集（版权数据，不入库）----
+data/datasets/
+
+# ---- CAMPUS 多机位视频裁图（本地跨镜头演示用）----
+data/campus/
+
+# ---- 场景测试集生成产物 ----
+data/scenarios/
+
+# ---- 其他生成产物 ----
 outputs/
 demo_assets/
 

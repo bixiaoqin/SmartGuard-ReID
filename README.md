@@ -11,8 +11,10 @@
 ```
 
 - **检测**：`detector.py`（YOLOv8n，ultralytics）
+- **视频流**：`stream.py`（视频文件 / 摄像头 / RTSP 统一封装，逐帧 YOLO + ByteTrack 编号）
 - **特征引擎**：`extractor.py`（当前为 FastReID R50 旧引擎；算法组的新引擎只需替换此文件内部的模型，接口 `extract(img_bgr) -> 特征向量` 不变）
-- **主流程**：`search.py`（检索）+ `rank_list.py`（结果可视化）
+- **Web 原型**：`app.py`（Flask）+ `templates/` + `static/`（上传图片 / 监控视频框选 → 跨镜头检索）
+- **主流程**：`search.py`（检索）+ `demo.py`（一键演示）+ `rank_list.py`（结果可视化）
 - **全局配置**：`config.py`（所有路径、设备参数集中管理）
 
 ## 快速开始（组员从零搭建）
@@ -69,34 +71,59 @@ python search.py
 | 常规 | Market-1501 | Kaggle：`kaggle.com/datasets/pengcw1/market-1501` | `data/datasets/Market-1501/` |
 | 遮挡 | Occluded-Duke | `github.com/lightas/Occluded-DukeMTMC-Dataset` | `data/datasets/Occluded-Duke/` |
 | 换衣 | PRCC | 官方申请页：`www.isee-ai.cn/~yangqize/clothing.html` | `data/datasets/PRCC/` |
-| 跨镜头视频演示 | CAMPUS（组内已有） | 联系管理员拷贝 | 任意位置，用 `scripts/extract_frames.py` 抽帧 |
 
 **下载后怎么做：**
 
 1. **Market-1501**：解压后应得到 `bounding_box_train/`、`bounding_box_test/`、`query/` 等文件夹，整个数据集文件夹放进 `data/datasets/Market-1501/`
 2. **Occluded-Duke**：此仓库**只提供文件名列表，不含图片**——先下载原始 DukeMTMC-reID（Kaggle：`kaggle.com/datasets/igorkrashenyi/dukemtmc-reid`），再用其仓库里的 `convert_duke_to_occduke.py` 脚本转换，生成的 `bounding_box_train/`、`bounding_box_test/`、`query/` 放进 `data/datasets/Occluded-Duke/`
 3. **PRCC**：在官方页面提交申请（通常通过百度网盘/邮件发放），解压后的 `prcc/`（含 `train/`、`test/`、`query/`）放进 `data/datasets/PRCC/`
-4. 数据集只放本地，**不要提交到 git**（`.gitignore` 已排除 `data/`，防止误传版权数据）
+4. 数据集只放本地，**不要提交到 git**（`.gitignore` 已排除 `data/datasets/`，防止误传版权数据）
 
-系统演示（`search.py`）不依赖这些数据集，它用的是 `data/query/` + `data/gallery/`（CAMPUS 视频抽帧，仓库已含）；数据集主要供算法组训练评测和挑选三场景测试图。
+系统默认演示数据（`data/query.jpg` + `data/gallery/`，19 张，约 1MB）**随仓库分发**：行人 0001 从摄像头 c1 发起查询，图库是他在 c2~c6 其他机位的画面 + 10 个干扰行人 —— 克隆即可演示"跨镜头检索"。
+
+## 运行 Web 原型系统（中期演示）
+
+```bash
+conda activate reid
+python app.py        # 浏览器打开 http://127.0.0.1:5000
+```
+
+两条入口：
+
+- **入口 A（监控视频跨镜头检索）**：选择 CAMPUS 多机位监控视频（本机 `data/config.py` 里 `CAMPUS_VIDEO_DIR` 指向的目录，不入库）→ 抓取画面并 YOLO 检测 → **在画面上点击目标行人** → 裁成 query → 在其他机位的图库中检索 → 展示 rank list
+- **入口 B（上传图片检索）**：上传一张行人图片，自动检测并检索 Top-5
+
+命令行自测视频流：
+
+```bash
+python stream.py --video "D:/dataset/database_path/multiview-database/CAMPUS/Garden2/view-HC1.mp4" --seek 30 --track
+```
+
+> CAMPUS 多机位监控视频与跨镜头图库（`data/campus/`）体积大、有版权，只放本地不入库；组员克隆仓库后仍可用入口 B + Market 子集完整体验检索流程。
 
 ## 目录结构
 
 ```
 SmartGuard-ReID/
 ├── config.py            # 全局配置（路径、设备）
+├── app.py               # Flask Web 原型（上传图片 / 监控视频框选 → 跨镜头检索）
+├── stream.py            # 视频流封装（视频文件/摄像头/RTSP + YOLO + ByteTrack）
 ├── search.py            # 主程序：查询图 → gallery 检索 Top-K
+├── demo.py / demo.bat   # 一键演示脚本（命令行 / Windows 双击）
 ├── detector.py          # YOLOv8 行人检测封装
 ├── extractor.py         # ReID 特征引擎（唯一换引擎入口）
 ├── rank_list.py         # 检索结果可视化（横向 rank list）
+├── templates/ static/   # Web 原型页面
 ├── weights/             # 模型权重（脚本下载，不入库）
 ├── fast-reid/           # FastReID 源码（脚本克隆，不入库）
 ├── data/
-│   ├── query/           # 查询图（CAMPUS HC1 抽帧，已含）
-│   ├── gallery/         # 图库（CAMPUS HC2 抽帧，已含）
-│   └── scenarios/       # 三场景测试集（常规/遮挡/换衣，待补）
+│   ├── query.jpg        # 默认查询图（Market 行人0001 @ 摄像头c1，随仓库分发）
+│   ├── gallery/         # 默认图库（行人0001其他机位 + 干扰项，随仓库分发）
+│   ├── campus/          # CAMPUS 跨镜头图库（本地，不入库）
+│   ├── datasets/        # 完整数据集（本地，不入库）
+│   └── scenarios/       # 三场景测试集（生成产物）
 ├── outputs/             # 生成的 rank list 等结果
-├── scripts/             # 资源下载、视频抽帧、行人裁剪工具
+├── scripts/             # 资源下载、三场景测试集生成工具
 ├── tests/               # 单项测试脚本
 ├── legacy/              # 历史引擎变体（留档）
 ├── demo_assets/         # 演示视频
@@ -125,16 +152,17 @@ class ReIDEngine:
 - [x] 资源一键下载脚本（scripts/download_assets.py）
 - [x] demo.py 一键演示（Windows 双击 demo.bat 即可运行）
 - [x] 三场景生成脚本（scripts/make_scenario.py）
-- [ ] 遮挡/换衣场景测试集（数据集下载后各跑一次 make_scenario.py，常规场景已生成）
-- [ ] Flask 界面（上传 + Top-K 展示）
-- [ ] 视频流演示 + ByteTrack 行人编号
+- [x] **Web 原型系统（app.py：视频流接入 + 目标框选 + 跨镜头检索 + Top-K 展示）**
+- [x] **视频流演示（stream.py：视频/摄像头/RTSP + ByteTrack 行人编号）**
+- [x] **Market-1501 跨镜头演示子集随仓库分发（克隆即可跑）**
+- [ ] 遮挡/换衣场景测试集（数据集下载后各跑一次 make_scenario.py）
 - [ ] 接入算法组新引擎，新旧引擎对比图
 
 ## 三场景测试集生成
 
 ```bash
-# 常规（示例用 CAMPUS 数据，正式版建议换 Market-1501）
-python scripts/make_scenario.py --name 常规 --source data/gallery --num 10
+# 常规（Market-1501 官方测试图）
+python scripts/make_scenario.py --name 常规 --source data/datasets/Market-1501/bounding_box_test --num 10
 
 # 数据集下载解压到 data/datasets/ 后：
 python scripts/make_scenario.py --name 遮挡 --source data/datasets/Occluded-Duke/query --num 10

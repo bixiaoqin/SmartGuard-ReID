@@ -22,10 +22,18 @@ FASTREID_CONFIG = FASTREID_ROOT / "configs" / "Market1501" / "bagtricks_R50-ibn.
 # ---------- 数据 ----------
 DATA_DIR = ROOT / "data"
 QUERY_DIR = DATA_DIR / "query"          # 查询图目录
-GALLERY_DIR = DATA_DIR / "gallery"      # 图库目录
-QUERY_IMAGE = DATA_DIR / "query.jpg"    # rank_list.py 默认查询图
-SEARCH_QUERY_IMAGE = DATA_DIR / "test1.jpg"  # search.py 默认查询图
+GALLERY_DIR = DATA_DIR / "gallery"      # 默认图库（Market-1501 跨镜头子集，随仓库分发）
+QUERY_IMAGE = DATA_DIR / "query.jpg"    # 默认查询图（Market-1501 行人 0001 @ 摄像头c1）
+SEARCH_QUERY_IMAGE = DATA_DIR / "query.jpg"  # search.py 默认查询图
 SCENARIO_DIR = DATA_DIR / "scenarios"   # 三场景测试集（常规/遮挡/换衣）
+
+# ---------- 完整数据集（本地使用，不入库） ----------
+DATASETS_DIR = DATA_DIR / "datasets"
+MARKET_DIR = DATASETS_DIR / "Market-1501"
+# CAMPUS 多机位监控视频（跨镜头演示的视频源，仅本机存在，不入库）
+CAMPUS_VIDEO_DIR = Path("D:/dataset/database_path/multiview-database/CAMPUS/Garden2")
+# CAMPUS 其他机位裁好的行人小图（跨镜头检索的图库，不入库）
+CAMPUS_GALLERY_DIR = DATA_DIR / "campus" / "gallery"
 
 # ---------- 输出 ----------
 OUTPUT_DIR = ROOT / "outputs"           # rank_list 等生成结果
