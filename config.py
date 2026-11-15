@@ -38,8 +38,5 @@ CAMPUS_GALLERY_DIR = DATA_DIR / "campus" / "gallery"
 # ---------- 输出 ----------
 OUTPUT_DIR = ROOT / "outputs"           # rank_list 等生成结果
 
-# ---------- 演示 ----------
-VIDEO_PATH = ROOT / "demo_assets" / "video.mp4"
-
 # ---------- 设备 ----------
 DEVICE = "cpu"  # 本机无独显用 cpu；实验室/AutoDL 服务器上改 "cuda:0"

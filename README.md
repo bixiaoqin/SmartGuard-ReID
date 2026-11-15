@@ -126,7 +126,6 @@ SmartGuard-ReID/
 ├── scripts/             # 资源下载、三场景测试集生成工具
 ├── tests/               # 单项测试脚本
 ├── legacy/              # 历史引擎变体（留档）
-├── demo_assets/         # 演示视频
 └── docs/                # 算法接口约定等文档
 ```
 
