@@ -4,8 +4,8 @@
   选 query → YOLO 检测行人 → ReID 引擎提特征 → gallery 检索 → 输出 rank list 图
 
 用法：
-  python demo.py                                        # 默认：test1.jpg 搜 data/gallery
-  python demo.py --query data/query.jpg --gallery data/gallery --topk 10 --name rank_list
+  python retrieve.py                                        # 默认：test1.jpg 搜 data/gallery
+  python retrieve.py --query data/query.jpg --gallery data/gallery --topk 10 --name rank_list
 """
 import argparse
 from pathlib import Path

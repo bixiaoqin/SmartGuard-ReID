@@ -8,7 +8,7 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-python demo.py
+python retrieve.py
 echo.
 echo 结果图已保存到 outputs\ 文件夹，按任意键退出...
 pause >nul

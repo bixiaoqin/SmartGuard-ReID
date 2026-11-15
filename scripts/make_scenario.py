@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from config import SCENARIO_DIR  # noqa: E402
-from demo import DemoPipeline, run_demo  # noqa: E402
+from retrieve import DemoPipeline, run_demo  # noqa: E402
 
 IMG_EXTS = {".jpg", ".jpeg", ".png", ".bmp"}
 

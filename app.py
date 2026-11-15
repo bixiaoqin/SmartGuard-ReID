@@ -21,7 +21,7 @@ from config import (YOLO_WEIGHTS, REID_WEIGHTS, CAMPUS_VIDEO_DIR,
                     CAMPUS_GALLERY_DIR, GALLERY_DIR, OUTPUT_DIR)
 from stream import FrameDetector, grab_annotated_frame
 from extractor import ReIDExtractor
-from demo import render_rank_list, list_images
+from retrieve import render_rank_list, list_images
 
 app = Flask(__name__)
 CACHE_DIR = OUTPUT_DIR / "app_cache"

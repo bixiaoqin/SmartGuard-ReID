@@ -84,7 +84,7 @@ def main():
 
     print("\n全部资源就绪！接下来：")
     print("  1. conda activate reid && pip install -r requirements.txt")
-    print("  2. python demo.py   # 验证检索流水线")
+    print("  2. python retrieve.py   # 验证检索流水线")
 
 
 if __name__ == "__main__":
