@@ -34,12 +34,30 @@ def pick_gallery_dir():
     return GALLERY_DIR
 
 
+# 引擎与检测器全局只加载一份（重量级），各图库仅共享它们
+_engine = None
+_detector = None
+
+
+def get_engine():
+    global _engine
+    if _engine is None:
+        _engine = ReIDExtractor(str(REID_WEIGHTS))
+    return _engine
+
+
+def get_detector():
+    global _detector
+    if _detector is None:
+        _detector = FrameDetector(str(YOLO_WEIGHTS))
+    return _detector
+
+
 class ReIDService:
-    """检测器 + 特征引擎 + 图库特征，只加载一次；图库特征缓存到 npz，二次启动秒开"""
+    """某个图库的特征集合（引擎/检测器为全局单例）；图库特征缓存到 npz，二次启动秒开"""
 
     def __init__(self, gallery_dir):
-        self.detector = FrameDetector(str(YOLO_WEIGHTS))
-        self.engine = ReIDExtractor(str(REID_WEIGHTS))
+        self.engine = get_engine()
         self.gallery_dir = Path(gallery_dir)
         self.gallery_paths = []
         self.gallery_feats = None
@@ -82,19 +100,21 @@ class ReIDService:
                 for r, i in enumerate(order)]
 
 
-_service = None
+_services = {}  # 图库路径 -> ReIDService
 
 
-def get_service():
-    global _service
-    if _service is None:
-        _service = ReIDService(pick_gallery_dir())
-    return _service
+def get_service(gallery_dir=None):
+    """按图库路径缓存服务实例；不传参数时用默认图库（视频入口配 CAMPUS）"""
+    if gallery_dir is None:
+        gallery_dir = pick_gallery_dir()
+    gallery_dir = Path(gallery_dir).resolve()
+    if gallery_dir not in _services:
+        _services[gallery_dir] = ReIDService(gallery_dir)
+    return _services[gallery_dir]
 
 
-def _run_search(query_crop, key, top_k=5):
+def _run_search(query_crop, key, svc, top_k=5):
     """query 裁图 → 特征 → 检索 → rank list 图，返回响应 JSON"""
-    svc = get_service()
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     cv2.imwrite(str(CACHE_DIR / f"{key}_query.jpg"), query_crop)
     query_feat = svc.engine.extract(query_crop)
@@ -102,6 +122,7 @@ def _run_search(query_crop, key, top_k=5):
     out_png = CACHE_DIR / f"{key}_rank.png"
     render_rank_list(query_crop, results, out_png)
     return jsonify(
+        gallery=f"{svc.gallery_dir.parent.name}/{svc.gallery_dir.name}",
         rank_list=f"/cache/{out_png.name}",
         results=[{"rank": r["rank"], "similarity": round(r["similarity"], 4),
                   "file": Path(r["path"]).name} for r in results])
@@ -130,7 +151,7 @@ def frame():
 
     svc = get_service()
     frame_no, frame, dets, annotated = grab_annotated_frame(
-        str(video_path), svc.detector, seek_seconds=seek)
+        str(video_path), get_detector(), seek_seconds=seek)
 
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     key = f"{Path(video_name).stem}_{frame_no}_{int(time.time())}"
@@ -161,27 +182,28 @@ def select():
     crop = frame[y1:y2, x1:x2]
     if crop.size == 0:
         return jsonify(error="裁剪失败"), 400
-    return _run_search(crop, key)
+    return _run_search(crop, key, get_service())
 
 
 @app.route("/upload", methods=["POST"])
 def upload():
-    """图片上传检索（备用入口）"""
+    """图片上传检索（备用入口）：上传图在 Market-1501 跨镜头图库中检索，
+    与视频框选入口（CAMPUS 图库）各自配对，保证 query 和图库同源"""
     f = request.files.get("image")
     if not f:
         return jsonify(error="没有收到文件"), 400
     img = cv2.imdecode(np.frombuffer(f.read(), np.uint8), cv2.IMREAD_COLOR)
     if img is None:
         return jsonify(error="图片读取失败"), 400
-    svc = get_service()
-    dets, _ = svc.detector.detect(img)
+    detector = get_detector()
+    dets, _ = detector.detect(img)
     if not dets:
         return jsonify(error="图中没有检测到行人"), 400
-    crop = svc.detector.crop_person(img, dets[0]["bbox"])
+    crop = detector.crop_person(img, dets[0]["bbox"])
     if crop is None:
         return jsonify(error="行人裁剪失败"), 400
     key = f"upload_{int(time.time())}"
-    return _run_search(crop, key)
+    return _run_search(crop, key, get_service(GALLERY_DIR))
 
 
 @app.route("/cache/<path:name>")
