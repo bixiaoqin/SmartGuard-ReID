@@ -23,8 +23,7 @@ FASTREID_CONFIG = FASTREID_ROOT / "configs" / "Market1501" / "bagtricks_R50-ibn.
 DATA_DIR = ROOT / "data"
 QUERY_DIR = DATA_DIR / "query"          # 查询图目录
 GALLERY_DIR = DATA_DIR / "gallery"      # 默认图库（Market-1501 跨镜头子集，随仓库分发）
-QUERY_IMAGE = DATA_DIR / "query.jpg"    # 默认查询图（Market-1501 行人 0001 @ 摄像头c1）
-SEARCH_QUERY_IMAGE = DATA_DIR / "query.jpg"  # search.py 默认查询图
+QUERY_IMAGE = DATA_DIR / "query.jpg"    # 默认查询图（Market-1501 行人 0001 @ 摄像头c1，demo.py 使用）
 SCENARIO_DIR = DATA_DIR / "scenarios"   # 三场景测试集（常规/遮挡/换衣）
 
 # ---------- 完整数据集（本地使用，不入库） ----------

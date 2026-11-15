@@ -14,7 +14,7 @@
 - **视频流**：`stream.py`（视频文件 / 摄像头 / RTSP 统一封装，逐帧 YOLO + ByteTrack 编号）
 - **特征引擎**：`extractor.py`（当前为 FastReID R50 旧引擎；算法组的新引擎只需替换此文件内部的模型，接口 `extract(img_bgr) -> 特征向量` 不变）
 - **Web 原型**：`app.py`（Flask）+ `templates/` + `static/`（上传图片 / 监控视频框选 → 跨镜头检索）
-- **主流程**：`search.py`（检索）+ `demo.py`（一键演示）+ `rank_list.py`（结果可视化）
+- **主流程**：`demo.py`（一键演示 + rank list 可视化，检索逻辑也在此）
 - **全局配置**：`config.py`（所有路径、设备参数集中管理）
 
 ## 快速开始（组员从零搭建）
@@ -59,10 +59,10 @@ Windows 下也可直接双击 `setup.bat`（在 Anaconda Prompt 中运行）。
 ### 4. 验证
 
 ```bash
-python search.py
+python demo.py
 ```
 
-输出 Top-5 检索结果即环境搭建成功。
+输出 Top-5 检索结果并生成 `outputs/` 下的 rank list 图，即环境搭建成功。
 
 ## 数据集下载（算法组训练 / 三场景测试用）
 
@@ -108,11 +108,10 @@ SmartGuard-ReID/
 ├── config.py            # 全局配置（路径、设备）
 ├── app.py               # Flask Web 原型（上传图片 / 监控视频框选 → 跨镜头检索）
 ├── stream.py            # 视频流封装（视频文件/摄像头/RTSP + YOLO + ByteTrack）
-├── search.py            # 主程序：查询图 → gallery 检索 Top-K
+├── demo.py              # 一键演示：查询图 → gallery 检索 Top-K + rank list 可视化
 ├── demo.py / demo.bat   # 一键演示脚本（命令行 / Windows 双击）
 ├── detector.py          # YOLOv8 行人检测封装
 ├── extractor.py         # ReID 特征引擎（唯一换引擎入口）
-├── rank_list.py         # 检索结果可视化（横向 rank list）
 ├── templates/ static/   # Web 原型页面
 ├── weights/             # 模型权重（脚本下载，不入库）
 ├── fast-reid/           # FastReID 源码（脚本克隆，不入库）
@@ -125,6 +124,7 @@ SmartGuard-ReID/
 ├── outputs/             # 生成的 rank list 等结果
 ├── scripts/             # 资源下载、三场景测试集生成工具
 ├── tests/               # 单项测试脚本
+├── legacy/              # 历史引擎变体（留档）
 └── docs/                # 算法接口约定等文档
 ```
 

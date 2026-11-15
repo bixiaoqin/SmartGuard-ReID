@@ -16,7 +16,7 @@ import matplotlib
 matplotlib.use("Agg")  # 无窗口环境也能出图
 import matplotlib.pyplot as plt
 
-from config import SEARCH_QUERY_IMAGE, GALLERY_DIR, OUTPUT_DIR, YOLO_WEIGHTS, REID_WEIGHTS
+from config import QUERY_IMAGE, GALLERY_DIR, OUTPUT_DIR, YOLO_WEIGHTS, REID_WEIGHTS
 from detector import PersonDetector
 from extractor import ReIDExtractor
 
@@ -122,7 +122,7 @@ def render_rank_list(query_img, results, out_png):
 
 def main():
     parser = argparse.ArgumentParser(description="SmartGuard-ReID 一键演示")
-    parser.add_argument("--query", default=str(SEARCH_QUERY_IMAGE), help="查询图路径")
+    parser.add_argument("--query", default=str(QUERY_IMAGE), help="查询图路径")
     parser.add_argument("--gallery", default=str(GALLERY_DIR), help="图库文件夹")
     parser.add_argument("--topk", type=int, default=5, help="返回前 K 个结果")
     parser.add_argument("--name", default="demo", help="输出文件名前缀")
